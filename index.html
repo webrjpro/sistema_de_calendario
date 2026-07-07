@@ -84,30 +84,34 @@
         </div>
 
         <div class="branding-settings">
-          <div>
+          <div class="branding-intro">
             <h2>Cabeçalho do PDF</h2>
             <p>Logo institucional opcional e texto impresso abaixo do logo.</p>
           </div>
-          <label>
-            Logo da instituição
-            <input id="institutionLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/*">
-          </label>
-          <label>
-            Texto abaixo do logo
-            <input id="institutionLogoCaption" type="text" autocomplete="off" maxlength="110">
-          </label>
-          <label class="inline-check">
-            <input id="includeLogoInPdf" type="checkbox">
-            Incluir logo no PDF
-          </label>
-          <div class="logo-preview">
-            <img id="pdfLogoPreview" src="./assets/logo-calendario.png" alt="Logo usado no PDF">
-            <span id="pdfLogoName">Logo padrão do sistema</span>
+          <div class="branding-fields">
+            <label>
+              Logo da instituição
+              <input id="institutionLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/*">
+            </label>
+            <label>
+              Texto abaixo do logo
+              <input id="institutionLogoCaption" type="text" autocomplete="off" maxlength="110">
+            </label>
+            <label class="inline-check">
+              <input id="includeLogoInPdf" type="checkbox">
+              Incluir logo no PDF
+            </label>
           </div>
-          <button class="button" id="clearInstitutionLogoBtn" type="button" title="Usar logo padrão do sistema">
-            <i data-lucide="rotate-ccw" aria-hidden="true"></i>
-            Padrão
-          </button>
+          <div class="logo-options">
+            <label class="inline-check logo-default-check">
+              <input id="useDefaultLogo" type="checkbox">
+              Usar logo padrão
+            </label>
+            <div class="logo-preview">
+              <img id="pdfLogoPreview" src="./assets/logo-calendario.png" alt="Logo usado no PDF">
+              <span id="pdfLogoName">Logo padrão</span>
+            </div>
+          </div>
           <div class="color-settings">
             <div class="palette-group">
               <span>Faixa do título</span>
@@ -134,10 +138,10 @@
           </div>
         </div>
 
-        <div id="dropZone" class="drop-zone" tabindex="0">
+        <div id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="Selecionar ou arrastar arquivo Excel">
           <i data-lucide="sheet" aria-hidden="true"></i>
-          <strong>Solte o Excel aqui</strong>
-          <span>ou selecione o arquivo no campo acima</span>
+          <strong>Clique ou solte o Excel aqui</strong>
+          <span>abre o seletor de arquivo ou aceita arrastar e soltar</span>
         </div>
 
         <div class="actions-row">

@@ -172,23 +172,54 @@ main > * {
 
 .branding-settings {
   display: grid;
-  grid-template-columns: minmax(180px, 0.9fr) minmax(180px, 0.8fr) minmax(220px, 1fr) auto;
-  gap: 10px;
-  align-items: end;
+  grid-template-columns: minmax(140px, 0.58fr) minmax(340px, 1.45fr) minmax(230px, 0.85fr);
+  gap: 12px;
+  align-items: start;
   min-width: 0;
   border-top: 1px solid var(--line);
   padding-top: 12px;
 }
 
-.branding-settings > div:first-child {
-  align-self: center;
+.branding-intro {
+  align-self: start;
+  padding-top: 2px;
 }
 
-.branding-settings p {
+.branding-settings p,
+.drop-zone span {
   color: var(--muted);
   font-size: 0.78rem;
   line-height: 1.35;
   margin-top: 3px;
+}
+
+.branding-fields {
+  display: grid;
+  grid-template-columns: minmax(155px, 0.9fr) minmax(210px, 1.1fr);
+  gap: 10px;
+  align-items: end;
+  min-width: 0;
+}
+
+.branding-fields .inline-check {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.logo-options {
+  display: grid;
+  gap: 8px;
+  align-self: stretch;
+  min-width: 0;
+}
+
+.logo-default-check {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 7px 9px;
 }
 
 .logo-preview {
@@ -196,6 +227,7 @@ main > * {
   align-items: center;
   gap: 9px;
   min-width: 0;
+  min-height: 48px;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--surface-muted);
@@ -211,6 +243,10 @@ main > * {
   background: #fff;
   object-fit: contain;
   padding: 2px;
+}
+
+.logo-preview img.is-muted {
+  opacity: 0.35;
 }
 
 .logo-preview span {
@@ -231,7 +267,8 @@ main > * {
   color: var(--text);
   font-size: 0.82rem;
   font-weight: 800;
-  white-space: nowrap;
+  line-height: 1.2;
+  white-space: normal;
 }
 
 .inline-check input {
@@ -366,6 +403,22 @@ select {
   padding: 0 10px;
 }
 
+input[type="file"] {
+  min-height: 38px;
+  padding: 6px;
+}
+
+input[type="file"]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 750;
+}
+
 textarea {
   min-height: 58px;
   padding: 9px 10px;
@@ -389,11 +442,21 @@ textarea:focus {
   border-radius: 8px;
   background: var(--surface-muted);
   text-align: center;
+  cursor: pointer;
+  padding: 12px;
+  transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
 }
 
+.drop-zone:hover,
+.drop-zone:focus-visible,
 .drop-zone.dragging {
   border-color: var(--blue-strong);
   background: #e8f1ff;
+}
+
+.drop-zone:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(39, 95, 159, 0.18);
 }
 
 .drop-zone svg {
@@ -794,7 +857,7 @@ tbody tr.critical td {
   background: #fff;
 }
 
-@media (min-width: 1025px) {
+@media (min-width: 1180px) {
   .control-band {
     grid-template-columns: minmax(0, 1fr) 260px;
     gap: 12px;
@@ -837,16 +900,7 @@ tbody tr.critical td {
   .branding-settings {
     grid-column: 1;
     grid-row: 3;
-    grid-template-columns: minmax(125px, 0.55fr) minmax(150px, 0.7fr) minmax(170px, 0.8fr) minmax(150px, 0.55fr) minmax(170px, 0.8fr) auto;
-  }
-
-  .branding-settings .button {
-    grid-column: auto;
-    justify-self: start;
-  }
-
-  .logo-preview {
-    grid-column: auto;
+    grid-template-columns: minmax(130px, 0.55fr) minmax(340px, 1.45fr) minmax(220px, 0.8fr);
   }
 
   .color-settings {
@@ -948,12 +1002,15 @@ tbody tr.critical td {
   .control-band,
   .compact-grid,
   .local-calendar,
-  .branding-settings {
+  .branding-settings,
+  .branding-fields,
+  .logo-options {
     grid-template-columns: 1fr;
   }
 
   .compact-grid label:nth-child(3),
   .custom-holiday-list,
+  .branding-fields .inline-check,
   .logo-preview,
   .color-settings {
     grid-column: auto;

@@ -105,6 +105,7 @@
       logoName: "",
       caption: "Sistema de Calendário",
       includeLogo: false,
+      useDefaultLogo: true,
       titleColor: DEFAULT_TITLE_COLOR,
       tableHeaderColor: DEFAULT_TABLE_HEADER_COLOR
     },
@@ -149,11 +150,11 @@
       "institutionLogoFile",
       "institutionLogoCaption",
       "includeLogoInPdf",
+      "useDefaultLogo",
       "pdfTitleColor",
       "pdfTableHeaderColor",
       "pdfLogoPreview",
       "pdfLogoName",
-      "clearInstitutionLogoBtn",
       "dropZone",
       "loadDefaultBtn",
       "manualBtn",
@@ -204,6 +205,12 @@
       renderBranding();
     });
 
+    elements.useDefaultLogo.addEventListener("change", (event) => {
+      state.branding.useDefaultLogo = event.target.checked;
+      persistBranding();
+      renderBranding();
+    });
+
     elements.pdfTitleColor.addEventListener("input", (event) => {
       state.branding.titleColor = sanitizeHexColor(event.target.value, DEFAULT_TITLE_COLOR);
       persistBranding();
@@ -226,14 +233,6 @@
         elements[target].value = color;
         elements[target].dispatchEvent(new Event("input", { bubbles: true }));
       });
-    });
-
-    elements.clearInstitutionLogoBtn.addEventListener("click", () => {
-      state.branding.logoDataUrl = "";
-      state.branding.logoName = "";
-      elements.institutionLogoFile.value = "";
-      persistBranding();
-      renderBranding();
     });
 
     elements.openTermsFooterBtn.addEventListener("click", openTermsDialog);
@@ -294,6 +293,10 @@
       if (file) {
         readExcelFile(file);
       }
+    });
+
+    elements.dropZone.addEventListener("click", () => {
+      elements.excelFile.click();
     });
 
     elements.dropZone.addEventListener("keydown", (event) => {
@@ -358,6 +361,7 @@
     const reader = new FileReader();
     reader.onload = () => {
       const source = String(reader.result || "");
+      state.branding.useDefaultLogo = false;
       normalizeLogoDataUrl(source)
         .then((normalized) => {
           state.branding.logoDataUrl = normalized || source;
@@ -400,7 +404,9 @@
   }
 
   function renderBranding() {
-    const logoSrc = state.branding.logoDataUrl || DEFAULT_LOGO_SRC;
+    const hasCustomLogo = Boolean(state.branding.logoDataUrl);
+    const useDefaultLogo = Boolean(state.branding.useDefaultLogo);
+    const logoSrc = useDefaultLogo || !hasCustomLogo ? DEFAULT_LOGO_SRC : state.branding.logoDataUrl;
     const caption = state.branding.caption || "Sistema de Calendário";
     const titleColor = sanitizeHexColor(state.branding.titleColor, DEFAULT_TITLE_COLOR);
     const tableHeaderColor = sanitizeHexColor(state.branding.tableHeaderColor, DEFAULT_TABLE_HEADER_COLOR);
@@ -408,9 +414,13 @@
 
     elements.brandLogo.src = DEFAULT_LOGO_SRC;
     elements.pdfLogoPreview.src = logoSrc;
-    elements.pdfLogoName.textContent = state.branding.logoName || "Logo padrão do sistema";
+    elements.pdfLogoPreview.classList.toggle("is-muted", !useDefaultLogo && !hasCustomLogo);
+    elements.pdfLogoName.textContent = useDefaultLogo
+      ? "Logo padrão"
+      : state.branding.logoName || "Sem logo selecionado";
     elements.institutionLogoCaption.value = caption;
     elements.includeLogoInPdf.checked = Boolean(state.branding.includeLogo);
+    elements.useDefaultLogo.checked = useDefaultLogo;
     elements.pdfTitleColor.value = titleColor;
     elements.pdfTableHeaderColor.value = tableHeaderColor;
     document.documentElement.style.setProperty("--table-header-color", tableHeaderColor);
@@ -421,11 +431,13 @@
 
   function loadBranding() {
     const saved = readJson(BRANDING_KEY);
+    const hasSavedLogo = Boolean(saved && saved.logoDataUrl);
     return {
       logoDataUrl: saved && typeof saved.logoDataUrl === "string" ? saved.logoDataUrl : "",
       logoName: saved && typeof saved.logoName === "string" ? saved.logoName : "",
       caption: saved && typeof saved.caption === "string" ? saved.caption : "Sistema de Calendário",
       includeLogo: Boolean(saved && saved.includeLogo),
+      useDefaultLogo: saved && typeof saved.useDefaultLogo === "boolean" ? saved.useDefaultLogo : !hasSavedLogo,
       titleColor: sanitizeHexColor(saved && saved.titleColor, DEFAULT_TITLE_COLOR),
       tableHeaderColor: sanitizeHexColor(saved && saved.tableHeaderColor, DEFAULT_TABLE_HEADER_COLOR)
     };
@@ -1547,8 +1559,11 @@
   }
 
   async function getActivePdfLogoDataUrl() {
-    if (state.branding.logoDataUrl) {
+    if (!state.branding.useDefaultLogo && state.branding.logoDataUrl) {
       return state.branding.logoDataUrl;
+    }
+    if (!state.branding.useDefaultLogo) {
+      return "";
     }
     if (state.defaultLogoDataUrl) {
       return state.defaultLogoDataUrl;
