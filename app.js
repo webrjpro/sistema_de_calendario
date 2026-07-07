@@ -67,6 +67,30 @@
     "Metodologia do Trabalho Científico"
   ];
 
+  const STANDARD_MODULE_CODES = {
+    "Princípios Institucionais da Advocacia de Estado": "PAE",
+    "Tópicos Avançados de Direito Constitucional": "TDC",
+    "Tópicos Avançados de Direito Administrativo": "TDA",
+    "Tópicos Fundamentais de Direito Civil": "TFDC",
+    "Assessoria e Consultoria Jurídica em Projetos de Infraestrutura": "ACI",
+    "Direito e Política Públicas": "DPP",
+    "Direito Ambiental e Sustentabilidade": "DAS",
+    "Tópicos Avançados de Direito Financeiro e Tributário": "DFT",
+    "Sistemas de Integridade Pública e Privada": "SIP",
+    "Licitações e Contratos Administrativos": "LCA",
+    "Direito Empresarial Público": "DEP",
+    "Direito do Petróleo": "DIP",
+    "A Fazenda Pública em Juízo": "FPJ",
+    "Métodos Extrajudiciais de Resolução de Conflitos": "MRC",
+    "Relações Contratuais de Trabalho da Administração Pública": "RCT",
+    "Regime Jurídico dos Servidores Públicos": "JSP",
+    "Regime Previdenciário dos Servidores Públicos": "PSP",
+    "Responsabilidade Civil do Estado": "RCE",
+    "Controle Externo da Administração Pública": "CAP",
+    "Direito Antidiscriminatório e Ações Afirmativas": "DAA",
+    "Metodologia do Trabalho Científico": "MET"
+  };
+
   const elements = {};
   const state = {
     title: "",
@@ -498,6 +522,7 @@
       HEADERS.forEach((header, index) => {
         row[header.key] = normalizeImportedValue(line[index], header);
       });
+      fillStandardModuleCode(row, false);
       importedRows.push(row);
     });
 
@@ -547,7 +572,8 @@
     state.rows = force
       ? STANDARD_MODULES.map((moduleName) => ({
         ...createEmptyRow(),
-        modulo: moduleName
+        modulo: moduleName,
+        codigo: getStandardModuleCode(moduleName)
       }))
       : [createEmptyRow()];
     elements.scheduleTitle.value = state.title;
@@ -705,8 +731,7 @@
       select.appendChild(option);
     });
 
-    const normalizedValue = normalizeText(row.modulo);
-    const matchedModule = STANDARD_MODULES.find((moduleName) => normalizeText(moduleName) === normalizedValue);
+    const matchedModule = findStandardModule(row.modulo);
     select.value = matchedModule || "";
 
     const textarea = document.createElement("textarea");
@@ -721,7 +746,7 @@
       if (!targetRow) {
         return;
       }
-      targetRow.modulo = event.target.value;
+      syncModuleAndCode(targetRow, event.target.value);
       textarea.value = event.target.value;
       persistDraft();
       renderMetrics();
@@ -733,8 +758,8 @@
       if (!targetRow) {
         return;
       }
-      targetRow.modulo = event.target.value;
-      const match = STANDARD_MODULES.find((moduleName) => normalizeText(moduleName) === normalizeText(event.target.value));
+      syncModuleAndCode(targetRow, event.target.value);
+      const match = findStandardModule(event.target.value);
       select.value = match || "";
       persistDraft();
       renderMetrics();
@@ -744,6 +769,60 @@
     wrapper.appendChild(select);
     wrapper.appendChild(textarea);
     return wrapper;
+  }
+
+  function syncModuleAndCode(row, moduleName) {
+    const previousCode = getStandardModuleCode(row.modulo);
+    const nextCode = getStandardModuleCode(moduleName);
+
+    row.modulo = moduleName;
+
+    if (nextCode) {
+      row.codigo = nextCode;
+      updateCellControlValue(row.id, "codigo", nextCode);
+      return;
+    }
+
+    if (previousCode && row.codigo === previousCode) {
+      row.codigo = "";
+      updateCellControlValue(row.id, "codigo", "");
+    }
+  }
+
+  function fillStandardModuleCode(row, overwrite) {
+    const code = getStandardModuleCode(row.modulo);
+    if (!code) {
+      return;
+    }
+
+    if (overwrite || !String(row.codigo || "").trim()) {
+      row.codigo = code;
+    }
+  }
+
+  function getStandardModuleCode(moduleName) {
+    const standardName = findStandardModule(moduleName);
+    return standardName ? STANDARD_MODULE_CODES[standardName] || "" : "";
+  }
+
+  function findStandardModule(moduleName) {
+    const normalized = normalizeLookupText(moduleName);
+    if (!normalized) {
+      return "";
+    }
+    return STANDARD_MODULES.find((name) => normalizeLookupText(name) === normalized) || "";
+  }
+
+  function normalizeLookupText(value) {
+    return normalizeText(value).replace(/\s+/g, " ").trim();
+  }
+
+  function updateCellControlValue(rowId, key, value) {
+    const control = Array.from(elements.modulesTable.querySelectorAll(`[data-key="${key}"]`))
+      .find((item) => item.dataset.rowId === rowId);
+    if (control && control.value !== value) {
+      control.value = value;
+    }
   }
 
   function renderMetrics() {
@@ -1939,7 +2018,11 @@
     state.expectedWeekday = draft.expectedWeekday || "";
     state.fileName = draft.fileName || "";
     state.totalFromExcel = draft.totalFromExcel || "";
-    state.rows = draft.rows.map((row) => ({ ...createEmptyRow(), ...row, id: row.id || makeId() }));
+    state.rows = draft.rows.map((row) => {
+      const restoredRow = { ...createEmptyRow(), ...row, id: row.id || makeId() };
+      fillStandardModuleCode(restoredRow, false);
+      return restoredRow;
+    });
     elements.scheduleTitle.value = state.title;
     elements.expectedWeekday.value = state.expectedWeekday;
     setSourceStatus("Rascunho restaurado");
