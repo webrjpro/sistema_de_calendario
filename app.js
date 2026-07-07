@@ -113,7 +113,8 @@
     holidaysByYear: new Map(),
     holidaySource: new Map(),
     warmupRunning: false,
-    analysisTimer: null
+    analysisTimer: null,
+    tableScrollControlsVisible: false
   };
 
   document.addEventListener("DOMContentLoaded", init);
@@ -172,6 +173,9 @@
       "alertSummary",
       "alertsList",
       "autosaveStatus",
+      "tableWrap",
+      "scrollTableLeftBtn",
+      "scrollTableRightBtn",
       "modulesTable"
     ].forEach((id) => {
       elements[id] = document.getElementById(id);
@@ -305,6 +309,58 @@
         elements.excelFile.click();
       }
     });
+
+    elements.scrollTableLeftBtn.addEventListener("click", () => scrollTableHorizontally(-1));
+    elements.scrollTableRightBtn.addEventListener("click", () => scrollTableHorizontally(1));
+    elements.tableWrap.addEventListener("scroll", updateTableScrollControls, { passive: true });
+    window.addEventListener("resize", updateTableScrollControls);
+    observeTableVisibility();
+  }
+
+  function observeTableVisibility() {
+    if (!("IntersectionObserver" in window)) {
+      state.tableScrollControlsVisible = true;
+      updateTableScrollControls();
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      state.tableScrollControlsVisible = entries.some((entry) => entry.isIntersecting);
+      updateTableScrollControls();
+    }, {
+      root: null,
+      threshold: 0.01
+    });
+
+    observer.observe(elements.tableWrap);
+  }
+
+  function scrollTableHorizontally(direction) {
+    const amount = Math.max(320, Math.round(elements.tableWrap.clientWidth * 0.72));
+    elements.tableWrap.scrollBy({
+      left: direction * amount,
+      behavior: "smooth"
+    });
+  }
+
+  function updateTableScrollControls() {
+    if (!elements.tableWrap || !elements.scrollTableLeftBtn || !elements.scrollTableRightBtn) {
+      return;
+    }
+
+    const maxScrollLeft = elements.tableWrap.scrollWidth - elements.tableWrap.clientWidth;
+    const hasHorizontalOverflow = maxScrollLeft > 2;
+    const shouldShow = state.tableScrollControlsVisible && hasHorizontalOverflow;
+
+    elements.scrollTableLeftBtn.hidden = !shouldShow;
+    elements.scrollTableRightBtn.hidden = !shouldShow;
+
+    if (!shouldShow) {
+      return;
+    }
+
+    elements.scrollTableLeftBtn.disabled = elements.tableWrap.scrollLeft <= 2;
+    elements.scrollTableRightBtn.disabled = elements.tableWrap.scrollLeft >= maxScrollLeft - 2;
   }
 
   function renderTableShell() {
@@ -645,6 +701,7 @@
     renderMetrics();
     renderAlerts();
     renderCustomHolidays();
+    updateTableScrollControls();
     refreshIcons();
   }
 

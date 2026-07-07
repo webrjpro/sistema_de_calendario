@@ -200,11 +200,19 @@
           <h2 id="tableTitle">Preview editável</h2>
           <span class="pill" id="autosaveStatus">Edições locais</span>
         </div>
-        <div class="table-wrap">
-          <table id="modulesTable">
-            <thead></thead>
-            <tbody></tbody>
-          </table>
+        <div class="table-scroll-shell">
+          <button class="table-scroll-button table-scroll-left" id="scrollTableLeftBtn" type="button" aria-label="Rolar tabela para a esquerda" hidden>
+            <i data-lucide="chevron-left" aria-hidden="true"></i>
+          </button>
+          <button class="table-scroll-button table-scroll-right" id="scrollTableRightBtn" type="button" aria-label="Rolar tabela para a direita" hidden>
+            <i data-lucide="chevron-right" aria-hidden="true"></i>
+          </button>
+          <div class="table-wrap" id="tableWrap">
+            <table id="modulesTable">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </section>
     </main>

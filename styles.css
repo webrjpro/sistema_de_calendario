@@ -647,11 +647,65 @@ textarea:focus {
   text-transform: uppercase;
 }
 
+.table-scroll-shell {
+  position: relative;
+  min-width: 0;
+}
+
 .table-wrap {
   overflow: auto;
   max-width: 100%;
   border: 1px solid var(--line);
   background: #fff;
+}
+
+.table-scroll-button {
+  position: fixed;
+  top: 50vh;
+  z-index: 8;
+  display: inline-grid;
+  width: 42px;
+  height: 64px;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 28px rgba(25, 39, 67, 0.16);
+  color: var(--blue-strong);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.table-scroll-button[hidden] {
+  display: none;
+}
+
+.table-scroll-button:hover {
+  border-color: var(--blue-strong);
+  background: #e8f1ff;
+}
+
+.table-scroll-button:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(39, 95, 159, 0.18), 0 10px 28px rgba(25, 39, 67, 0.16);
+}
+
+.table-scroll-button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.table-scroll-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.table-scroll-left {
+  left: 16px;
+}
+
+.table-scroll-right {
+  right: 16px;
 }
 
 table {
@@ -1051,6 +1105,19 @@ tbody tr.critical td {
   .alert-item {
     grid-template-columns: 1fr;
   }
+
+  .table-scroll-button {
+    width: 36px;
+    height: 54px;
+  }
+
+  .table-scroll-left {
+    left: 8px;
+  }
+
+  .table-scroll-right {
+    right: 8px;
+  }
 }
 
 @media print {
@@ -1060,6 +1127,7 @@ tbody tr.critical td {
 
   .topbar,
   .control-band,
+  .table-scroll-button,
   .actions-cell,
   .status-cell {
     display: none !important;
